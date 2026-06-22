@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SHAP Global — Variáveis mais influentes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background:#f4f6f9; }
+        .page-header { background:#1B4F72; color:#fff; border-radius:12px; padding:1.1rem 1.5rem; margin-bottom:1.25rem; }
+        .content-card { background:#fff; border:1px solid #dee2e6; border-radius:10px; padding:1.25rem; }
+        .nota { background:#e8f0fe; border-left:4px solid #0d6efd; padding:.65rem .9rem; font-size:.85rem; color:#1a4a9e; margin-bottom:1rem; }
+        .nav-btn { display:flex; align-items:center; gap:10px; background:#f8fafc; border:1px solid #cbd5e1;
+            border-radius:8px; padding:.65rem 1rem; text-decoration:none; color:#1e293b;
+            font-size:.85rem; font-weight:500; margin-bottom:.5rem; }
+        .nav-btn:hover { background:#eff6ff; color:#0d6efd; border-color:#93c5fd; }
+        .nav-btn .icon { width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+    </style>
+</head>
+<body>
+<div class="container mt-4 mb-5" style="max-width:900px">
+
+    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h2 class="fs-5 fw-bold mb-0">SHAP Global — O que o modelo aprendeu</h2>
+            <p class="mb-0 opacity-75" style="font-size:.85rem">
+                Variáveis com maior influência nas previsões para todos os estudantes
+            </p>
+        </div>
+        <a href="/chat" class="btn btn-outline-light btn-sm">← Voltar ao Chat</a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="content-card">
+                <div class="nota">
+                    <strong>Como ler este gráfico:</strong> Cada fatia representa o peso relativo
+                    de uma variável nas decisões do modelo — para <strong>todos os estudantes</strong>
+                    do dataset, não apenas para o caso individual.
+                    Quanto maior a fatia, mais essa variável determina se um estudante abandona ou não.
+                </div>
+                <img
+                    src="{{ url_for('static', filename='imagens/shap_global.png') }}"
+                    class="img-fluid rounded"
+                    alt="SHAP Global"
+                    style="width:100%"
+                >
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="content-card mb-3">
+                <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;margin-bottom:.65rem">
+                    Resultado deste estudante
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <div>
+                        <div style="font-size:.72rem;color:#6c757d">Classe prevista</div>
+                        <div class="fw-bold {% if resultado.classe == 'Abandonou' %}text-danger{% else %}text-success{% endif %}" style="font-size:1.1rem">
+                            {{ resultado.classe }}
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:.72rem;color:#6c757d">Probabilidade de abandono</div>
+                        <div class="fw-bold text-warning" style="font-size:1.1rem">{{ resultado.probabilidade }}%</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.72rem;color:#6c757d">Nível de risco</div>
+                        <div class="fw-bold {% if resultado.risco == 'Alto' %}text-danger{% elif resultado.risco == 'Moderado' %}text-warning{% else %}text-success{% endif %}" style="font-size:1.1rem">
+                            {{ resultado.risco }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div style="font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.65rem">
+                    Próximo passo
+                </div>
+                <a href="/shap_local" class="nav-btn">
+                    <div class="icon" style="background:#dcfce7">🎯</div>
+                    <div>
+                        <div style="font-weight:600">Ver XAI Local</div>
+                        <div style="font-size:.75rem;color:#6c757d">Explicação individual deste estudante</div>
+                    </div>
+                </a>
+                <a href="/chat" class="nav-btn">
+                    <div class="icon" style="background:#dbeafe">💬</div>
+                    <div>
+                        <div style="font-weight:600">Falar com o Agente</div>
+                        <div style="font-size:.75rem;color:#6c757d">Perguntar ao agente XAI</div>
+                    </div>
+                </a>
+                <a href="/" class="nav-btn">
+                    <div class="icon" style="background:#fef9c3">➕</div>
+                    <div>
+                        <div style="font-weight:600">Nova Simulação</div>
+                        <div style="font-size:.75rem;color:#6c757d">Analisar outro estudante</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

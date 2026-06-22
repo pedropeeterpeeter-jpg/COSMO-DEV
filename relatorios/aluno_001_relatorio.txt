@@ -1,0 +1,14 @@
+Aluno ID: 001
+
+Probabilidade de abandono: 84%
+
+Principais fatores:
+
+1. Número de reprovações (+0.42)
+2. Distância escola (+0.31)
+3. Falta de apoio familiar (+0.22)
+
+Fatores protetores:
+
+1. Pretende retornar (-0.18)
+2. Acesso à internet (-0.11)

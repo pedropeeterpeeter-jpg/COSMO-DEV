@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard XAI — Explicabilidade Local</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f6f9; }
+        .dash-header {
+            background: #0d6efd; color: #fff;
+            border-radius: 10px; padding: 1.1rem 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .metric-card {
+            background: #fff; border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 1rem; text-align: center; height: 100%;
+        }
+        .metric-label {
+            font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 0.07em; text-transform: uppercase;
+            color: #6c757d; margin-bottom: 0.3rem;
+        }
+        .metric-value { font-size: 1.9rem; font-weight: 700; margin: 0; }
+        .section-title {
+            font-size: 1rem; font-weight: 600;
+            border-left: 4px solid #0d6efd;
+            padding-left: 0.65rem; margin-bottom: 0.75rem;
+        }
+        .content-card {
+            background: #fff; border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 1.25rem;
+        }
+        .shap-nota {
+            background: #e8f0fe; border-left: 4px solid #0d6efd;
+            border-radius: 0; padding: 0.65rem 0.9rem;
+            font-size: 0.85rem; color: #1a4a9e; margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container mt-4 mb-5" style="max-width: 980px;">
+
+    <div class="dash-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1 class="fs-5 fw-bold mb-0">Dashboard — Explicabilidade XAI Local</h1>
+            <p class="mb-0 opacity-75" style="font-size:0.88rem">
+                Factores reais que influenciaram a última previsão realizada
+            </p>
+        </div>
+        <a href="/" class="btn btn-light btn-sm fw-semibold">+ Nova Simulação</a>
+    </div>
+
+    <!-- Métricas do dataset -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="metric-card">
+                <div class="metric-label">Total de Estudantes</div>
+                <p class="metric-value text-dark">{{ stats.total }}</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="metric-card">
+                <div class="metric-label">Abandonaram</div>
+                <p class="metric-value text-danger">{{ stats.abandonou }}</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="metric-card">
+                <div class="metric-label">A Estudar</div>
+                <p class="metric-value text-success">{{ stats.estudando }}</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="metric-card">
+                <div class="metric-label">Taxa de Abandono</div>
+                <p class="metric-value text-warning">{{ stats.taxa }}%</p>
+            </div>
+        </div>
+    </div>
+
+    {% if stats.taxa | float > 50 %}
+    <div class="alert alert-danger mb-4">
+        <strong>Situação crítica:</strong> {{ stats.taxa }}% dos estudantes abandono o sistema educativo.
+        Recomenda-se revisão urgente das políticas de apoio escolar.
+    </div>
+    {% elif stats.taxa | float > 30 %}
+    <div class="alert alert-warning mb-4">
+        <strong>Atenção:</strong> Taxa de abandono de {{ stats.taxa }}% requer acções preventivas prioritárias.
+    </div>
+    {% else %}
+    <div class="alert alert-success mb-4">
+        <strong>Situação estável:</strong> Taxa de abandono de {{ stats.taxa }}% dentro de limites controlados.
+    </div>
+    {% endif %}
+
+    <!-- SHAP Local — peça central do dashboard -->
+    <h2 class="section-title">Explicabilidade XAI — última previsão realizada</h2>
+    <div class="content-card mb-4">
+        <div class="shap-nota">
+            <strong>Como ler este gráfico:</strong>
+            As fatias <span style="color:#C0392B;font-weight:600">vermelhas</span> mostram
+            os factores que aumentaram o risco de abandono nesta previsão.
+            As fatias <span style="color:#1E8449;font-weight:600">verdes</span> mostram
+            os factores que protegeram o estudante.
+            Apenas as variáveis inseridas no formulário são consideradas.
+        </div>
+        <img
+            src="{{ url_for('static', filename='imagens/shap_local.png') }}"
+            class="img-fluid rounded"
+            alt="Gráfico SHAP Local — explicabilidade individual"
+            style="width:100%"
+        >
+    </div>
+
+    <!-- Causas declaradas (compacto, secundário) -->
+    <h2 class="section-title">Causas declaradas de abandono no dataset</h2>
+    <div class="content-card mb-4">
+        <p class="text-muted small mb-3">
+            Causas reportadas nos registos históricos dos estudantes que abandonaram,
+            ordenadas por frequência.
+        </p>
+        <table class="table mb-0" style="font-size:0.88rem">
+            <thead class="table-light">
+                <tr>
+                    <th>Causa</th>
+                    <th style="width:70px">Casos</th>
+                    <th>Frequência</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for causa, valor in stats.causas.items() %}
+                {% if causa != "Nenhuma" and valor > 0 %}
+                <tr>
+                    <td>{{ causa }}</td>
+                    <td class="fw-semibold">{{ valor }}</td>
+                    <td>
+                        <div style="height:8px;background:#dee2e6;border-radius:4px;overflow:hidden;width:160px">
+                            <div style="height:100%;background:#0d6efd;border-radius:4px;
+                                width:{{ (valor / stats.abandonou * 100) | round | int }}%"></div>
+                        </div>
+                        <span style="font-size:0.75rem;color:#6c757d">
+                            {{ (valor / stats.abandonou * 100) | round(1) }}%
+                        </span>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a href="/"          class="btn btn-primary">Nova Simulação</a>
+        <a href="/chat"      class="btn btn-outline-success">Falar com o Agente XAI</a>
+        <a href="/resultado" class="btn btn-outline-secondary">Ver último resultado</a>
+    </div>
+
+</div>
+</body>
+</html>
